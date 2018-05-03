@@ -1,0 +1,37 @@
+{
+  "name": "saltfish",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./backend/src/server.js",
+    "test": "lab -v -c",
+    "lint": "$(npm bin)/eslint './backend/**/*.js'",
+    "lint-fix": "$(npm bin)/eslint './backend/**/*.js' --fix",
+    "bundle": "browserify ./frontend/src/frontend.js -o ./frontend/bundle.js",
+    "watch": "watchify ./frontend/src/frontend.js -o ./frontend/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitterulf/saltfish.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/bitterulf/saltfish/issues"
+  },
+  "homepage": "https://github.com/bitterulf/saltfish#readme",
+  "dependencies": {
+    "domready": "^1.0.8",
+    "hapi": "^16.6.0",
+    "inert": "^4.2.1",
+    "mithril": "^1.1.6",
+    "mithril-node-render": "^2.3.0",
+    "nedb": "^1.8.0",
+    "primus": "^7.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "lab": "^14.0.1"
+  }
+}
