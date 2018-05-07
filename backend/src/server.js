@@ -1,11 +1,5 @@
 const Path = require('path');
 const Hapi = require('hapi');
-const Primus = require('primus');
-require('mithril/test-utils/browserMock')(global);
-const m = require('mithril');
-const render = require('mithril-node-render');
-
-const Title = require('../../shared/src/Title.js');
 
 const server = new Hapi.Server({
     connections: {
@@ -21,36 +15,22 @@ server.connection({
     port: 8080
 });
 
-const sessions = {
-    'ZZZ': 'bob'
-};
-
-const primus = new Primus(server.listener, {/* options */});
-
-primus.authorize(function (req, done) {
-    const activeUser = sessions[req.query.token];
-
-    if (activeUser) {
-        return done();
-    }
-    done(new Error('invalid token'));
-});
-
-primus.on('connection', function (spark) {
-    const activeUser = sessions[spark.query.token];
-
-    if (activeUser) {
-        spark.username = activeUser;
-
-        spark.on('data', function(message) {
-            console.log(spark.username + ': ' + message);
-        });
-    }
-});
-
 server.register(
     [
-        require('inert')
+        require('inert'),
+        require('./plugins/process.js'),
+        require('./plugins/zmq.js'),
+        require('./plugins/ports.js'),
+        require('./plugins/log.js'),
+        require('./plugins/dev.js'),
+        require('./plugins/broker.js'),
+        require('./plugins/mithril.js'),
+        require('./plugins/shared.js'),
+        require('./plugins/root.js'),
+        require('./plugins/validator.js'),
+        require('./plugins/mutator.js'),
+        require('./plugins/memory.js'),
+        require('./plugins/tracker.js')
     ], (err) => {
 
         if (err) {
@@ -58,49 +38,7 @@ server.register(
         }
 
         server.start((err) => {
-
-            server.route({
-                method: 'GET',
-                path: '/api/hello',
-                handler: function (request, reply) {
-                    render(m(Title, 'hello')).then(reply);
-                }
-            });
-
-            server.route({
-                method: 'GET',
-                path: '/static/{param*}',
-                handler: {
-                    directory: {
-                        path: './static',
-                        redirectToSlash: true,
-                        index: true
-                    }
-                }
-            });
-
-            server.route({
-                method: 'GET',
-                path: '/',
-                handler: function (request, reply) {
-                    render([
-                        m("title",
-                            "client"
-                        ),
-                        m("script[src='/primus/primus.js']"),
-                        m("script[src='/bundle.js']"),
-                        "client"
-                    ]).then(reply);
-                }
-            });
-
-            server.route({
-                method: 'GET',
-                path: '/bundle.js',
-                handler: {
-                    file: './frontend/bundle.js'
-                }
-            });
+            server.pushLog({foo: 'bar'});
 
             if (err) {
                 throw err;

@@ -23,12 +23,15 @@
   "homepage": "https://github.com/bitterulf/saltfish#readme",
   "dependencies": {
     "domready": "^1.0.8",
+    "graphql": "^0.13.2",
     "hapi": "^16.6.0",
     "inert": "^4.2.1",
+    "jsondiffpatch": "^0.3.9",
     "mithril": "^1.1.6",
     "mithril-node-render": "^2.3.0",
     "nedb": "^1.8.0",
-    "primus": "^7.1.1"
+    "primus": "^7.1.1",
+    "zeromq": "^4.6.0"
   },
   "devDependencies": {
     "eslint": "^4.19.1",
