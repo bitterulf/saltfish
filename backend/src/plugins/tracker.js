@@ -12,9 +12,17 @@ const tracker = {
             const stateDiff = diff(lastState, newState);
             console.log(stateDiff);
 
-            if (stateDiff && stateDiff.worlds) {
-                console.log('worlds change');
-                output.send(JSON.stringify({ type: 'WORLD_CHANGED' }));
+            if (stateDiff) {
+                if (stateDiff.worlds) {
+                    console.log('worlds change');
+                    output.send(JSON.stringify({ type: 'WORLD_CHANGED' }));
+                }
+                if (stateDiff.profiles && typeof stateDiff.profiles === 'object') {
+                    Object.keys(stateDiff.profiles).forEach(function(username) {
+                        console.log('>>>> send change');
+                        output.send(JSON.stringify({ user: username, type: 'PROFILE_CHANGED' }));
+                    });
+                }
             }
 
             lastState = newState;

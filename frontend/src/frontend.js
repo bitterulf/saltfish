@@ -9,10 +9,19 @@ const App = {
     }
 }
 
+let initialConnect = false;
+
 domready(function() {
-    const primus = Primus.connect('?token=ZZZ');
+    const primus = Primus.connect('?world=W1&token=ZZZ');
     primus.on('open', function() {
-        primus.write(JSON.stringify({ action: 'join', world: 'w1' }));
+        primus.write(JSON.stringify({ action: 'join' }));
+
+        if (initialConnect) {
+            return;
+        }
+
+        primus.write(JSON.stringify({ query: '{ worlds { name } }' }));
+
         m.mount(document.body, App);
         primus.on('data', function(data) {
             if (data.query) {
@@ -22,7 +31,12 @@ domready(function() {
                 if (data.type === 'WORLD_CHANGED') {
                     primus.write(JSON.stringify({ query: '{ worlds { name } }' }));
                 }
+                else if (data.type === 'PROFILE_CHANGED') {
+                    primus.write(JSON.stringify({ query: '{ profile { username } }' }));
+                }
             }
         });
+
+        initialConnect = true;
     });
 });

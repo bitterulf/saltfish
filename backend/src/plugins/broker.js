@@ -11,12 +11,24 @@ const broker = {
             'ZZZ': 'bob'
         };
 
+        const worlds = {
+            'W1': {
+
+            }
+        };
+
         const primus = new Primus(server.listener, {/* options */});
 
         input.on('message', function(msg){
             console.log('BRK>', msg.toString());
+            const message = JSON.parse(msg.toString());
             primus.forEach(function (spark) {
-                spark.write(JSON.parse(msg.toString()));
+                if (!message.user) {
+                    spark.write(JSON.parse(msg.toString()));
+                }
+                else if (message.user == spark.username) {
+                    spark.write(JSON.parse(msg.toString()));
+                }
             });
         });
 
@@ -40,23 +52,24 @@ const broker = {
 
         primus.on('connection', function (spark) {
             const activeUser = sessions[spark.query.token];
+            const world = spark.query.world;
 
-            if (activeUser) {
+            if (activeUser && world && worlds[world]) {
                 server.pushLog({user: activeUser, status: 'connected'});
                 spark.username = activeUser;
+                spark.role = 'admin';
+                spark.world = world;
 
                 spark.on('data', function(rawMessage) {
                     const message = JSON.parse(rawMessage);
                     if (message.query) {
-                        requestOutput.send(JSON.stringify({username: spark.username, query: message.query}));
+                        requestOutput.send(JSON.stringify({username: spark.username, role: spark.role, world: spark.world, query: message.query}));
                     }
                     else if (message.action) {
                         server.pushLog({user: spark.username, message: message});
-                        output.send(JSON.stringify({user: spark.username, message: message}));
+                        output.send(JSON.stringify({user: spark.username, role: spark.role, world: spark.world, message: message}));
                     }
                 });
-
-                spark.write({ foo: 'bar' });
             }
         });
 

@@ -4,6 +4,8 @@ const getState = function(events) {
     const state = {
         worlds: {
 
+        },
+        profiles: {
         }
     }
 
@@ -13,6 +15,11 @@ const getState = function(events) {
         }
         else if (event.type === 'DESTROY_WORLD') {
             delete state.worlds[event.name];
+        }
+        else if (event.type === 'CREATE_PROFILE') {
+            state.profiles[event.username] = {
+                username: event.username
+            };
         }
     });
 
@@ -29,6 +36,14 @@ const WorldType = new graphql.GraphQLObjectType({
     })
 });
 
+const ProfileType = new graphql.GraphQLObjectType({
+    name: 'Profile',
+    description: 'This represent a Profile',
+    fields: () => ({
+        username: {type: new graphql.GraphQLNonNull(graphql.GraphQLString)}
+    })
+});
+
 const schema = new graphql.GraphQLSchema({
     query: new graphql.GraphQLObjectType({
         name: 'RootQueryType',
@@ -41,6 +56,14 @@ const schema = new graphql.GraphQLSchema({
                             name: key
                         }
                     });
+                }
+            },
+            profile: {
+                type: ProfileType,
+                resolve: function(root, args) {
+                    return {
+                        username: root.username
+                    }
                 }
             }
         }
@@ -55,8 +78,16 @@ const memory = {
         const requestInput = server.zmq.socket('pull').connect(server.ports.memoryRequest);
         const output = server.zmq.socket('push').bindSync(server.ports.tracker);
         const responseOutput = server.zmq.socket('push').bindSync(server.ports.brokerResponse);
+        const updateMutator = server.zmq.socket('push').bindSync(server.ports.mutatorState);
+        const updateValidator = server.zmq.socket('push').bindSync(server.ports.validatorState);
 
-        output.send(JSON.stringify(getState(events)));
+        const sendState = function(state) {
+            output.send(JSON.stringify(state));
+            updateMutator.send(JSON.stringify(state));
+            updateValidator.send(JSON.stringify(state));
+        };
+
+        sendState(getState(events));
 
         input.on('message', function(msg){
             console.log('MEM>', msg.toString());
@@ -64,14 +95,14 @@ const memory = {
             const state = getState(events);
             console.log(state);
             lastState = state;
-            output.send(JSON.stringify(state));
+            sendState(state);
         });
 
         requestInput.on('message', function(msg){
             const message = JSON.parse(msg.toString());
             console.log('MEM REQ>', message);
 
-            graphql.graphql(schema, message.query).then(result => {
+            graphql.graphql(schema, message.query, {username: message.username, role: message.role}).then(result => {
                 console.log(result);
                 responseOutput.send(JSON.stringify({ username: message.username, query: message.query, result: result.data }));
             });
