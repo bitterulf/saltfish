@@ -1,0 +1,44 @@
+#grid {
+    grid-kiss:        
+    "┌─────────────────────────┐       "
+    "│                         │ 100px "
+    "│   < .menu >             │       "
+    "└─────────────────────────┘   -   "
+    "┌─────────────┐ ┌──────────┐       "
+    "|             | │ .overview│ 100px "
+    "|             | └──────────┘  -    "
+    "│   < .map >  │ ┌──────────┐       "
+    "│             │ │ .action  │ 100px "
+    "│             │ └──────────┘  -    "
+    "│             │ ┌──────────┐       "
+    "│             │ │ .detail  │ 100px "
+    "│             │ └──────────┘  -    "
+    "│             │              auto  "
+    "└─────────────┘                    "
+    "   auto       |    200px           "
+    ;  
+}
+
+#grid > div {
+    border:2px solid black;
+    background-color: #ccc;
+    padding: 0.5em;
+}
+
+#container {    
+    width: 400px;
+    height: 400px;
+    padding: 1em;
+}
+
+<div id="container">
+	<div id="grid">
+		<div class="menu">menu</div>
+		<div class="map">
+		    map
+		</div>
+		<div class="overview">overview</div>
+		<div class="action">action</div>
+		<div class="detail">detail</div>
+	</div>	
+</div>
