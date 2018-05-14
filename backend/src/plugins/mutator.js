@@ -21,6 +21,9 @@ const mutator = {
                     output.send(JSON.stringify({ type: 'CREATE_PROFILE',  username: message.user}));
                 }
             }
+            else if (message.message.action === 'placeContor') {
+                output.send(JSON.stringify({ type: 'CREATE_CONTOR',  world: message.world, username: message.user, city: message.message.payload.city }));
+            }
         });
 
         next();

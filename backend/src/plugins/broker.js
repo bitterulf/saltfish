@@ -35,7 +35,10 @@ const broker = {
         responseInput.on('message', function(msg){
             const message = JSON.parse(msg.toString());
             primus.forEach(function (spark) {
-                if (spark.username === message.username) {
+                if (message.world && spark.world === message.world) {
+                    spark.write(JSON.parse(msg.toString()));
+                }
+                else if (message.username && spark.username === message.username) {
                     spark.write(JSON.parse(msg.toString()));
                 }
             });

@@ -13,11 +13,22 @@ const validator = {
         input.on('message', function(msg){
             const message = JSON.parse(msg.toString());
 
-            if (message.role === 'admin') {
+            // if (message.role === 'admin') {
+                // output.send(msg);
+            // }
+            if (message.message.action === 'join') {
                 output.send(msg);
             }
-            else if (message.message.action === 'join') {
-                output.send(msg);
+            else if (message.message.action === 'placeContor') {
+                const existingContor = state.contors.find(function(contor) {
+                    return contor.world === message.world
+                    && contor.user === message.user
+                });
+
+                if (!existingContor) {
+                    output.send(msg);
+                }
+
             }
             else {
                 console.log('action blocked!', msg.toString());

@@ -19,9 +19,20 @@ const tracker = {
                 }
                 if (stateDiff.profiles && typeof stateDiff.profiles === 'object') {
                     Object.keys(stateDiff.profiles).forEach(function(username) {
-                        console.log('>>>> send change');
                         output.send(JSON.stringify({ user: username, type: 'PROFILE_CHANGED' }));
                     });
+                }
+                if (stateDiff.contors && typeof stateDiff.contors === 'object') {
+                    if (stateDiff.contors._t === 'a') {
+                        const worldsToUpdate = [];
+
+                        stateDiff.contors[0].forEach(function(contor) {
+                            worldsToUpdate.push(contor.world);
+                        });
+                        worldsToUpdate.forEach(function(world) {
+                            output.send(JSON.stringify({ world: world, type: 'CONTORS_CHANGED' }));
+                        });
+                    }
                 }
             }
 
